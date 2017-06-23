@@ -1,6 +1,6 @@
 # vue-music
 
-> A Vue.js project
+> vue-music  学习
 
 ## Build Setup
 
