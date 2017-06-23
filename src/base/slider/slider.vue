@@ -10,10 +10,62 @@
 </template>
 
 <script>
-// import {addClass} from ''
-// import BScroll from 'better-scroll'
+import { addClass } from '@/common/js/dom'
+import BScroll from 'better-scroll'
 export default {
+    props: {
+        loop: {
+            type: Boolean,
+            default: true
+        },
+        autoPlay: {
+            type: Boolean,
+            default: true
+        },
+        interval: {
+            type: Number,
+            default: 4000
+        }
+    },
+    mounted() {
+        // this.$nextTick(() => {})
+        setTimeout(() => {
+            this._setSliderWidth()
+            this._initSlider()
+        }, 20)
+    },
+    methods: {
+        _setSliderWidth() {
+            // 初始化slider的宽度
+            this.children = this.$refs.sliderGroup.children
 
+            let width = 0
+            let sliderWidth = this.$refs.slider.clientWidth
+            for (let i = 0; i < this.children.length; i++) {
+                let child = this.children[i]
+                addClass(child, 'slider-item')
+                child.style.width = sliderWidth + 'px'
+                // sliderGroup 的宽度
+                width += sliderWidth
+            }
+            if (this.loop) {
+                width += 2 * sliderWidth
+            }
+            this.$refs.sliderGroup.style.width = width + 'px'
+        },
+        _initSlider() {
+            this.slider = new BScroll(this.$refs.slider, {
+                scrollX: true,
+                scrollY: false,
+                momentum: false,
+                snap: true,
+                snapLoop: this.loop,
+                snapThreshold: 0.3,
+                snapSpeed: 400,
+                click: true
+            })
+        }
+    }
 }
 </script>
 
