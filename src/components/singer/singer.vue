@@ -10,7 +10,7 @@ import { getSingerList } from '@/api/singer'
 import { ERR_OK } from '@/api/config'
 import Singer from '@/common/js/singer'
 const HOT_NAME = '热门'
-const HOT_SINGER_LEN = 10
+const HOT_SINGER_LEN = 10   // 定义数据的前10条为热门
 export default {
     data() {
         return {
@@ -29,6 +29,9 @@ export default {
                 }
             })
         },
+        // 拿到数据格式个页面需要的数据格式不一致，需要重新处理一下格式
+        // 需要的数据格式如下：
+        // [{title:'热门',items: [Singer,Singer,.....]},{title:'A',items:[Singer,Singer,.....]},{title:'B',items:[Singer,Singer,.....]}]
         _normalizeSinger(list) {
             let map = {
                 hot: {
