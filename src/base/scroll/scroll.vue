@@ -19,6 +19,10 @@ export default {
         data: {
             type: Array,
             default: null
+        },
+        listenScroll: {
+            type: Boolean,
+            default: false
         }
     },
     watch: {
@@ -42,6 +46,13 @@ export default {
                 probeType: this.probeType,
                 click: this.click
             })
+
+            if (this.listenScroll) {
+                let me = this
+                this.scroll.on('scroll', (pos) => {
+                    me.$emit('scroll', pos)             // better-scroll监听scroll事件 向外面派发pos
+                })
+            }
         },
         enable() {
             this.scroll && this.scroll.enable()
@@ -51,6 +62,12 @@ export default {
         },
         refresh() {
             this.scroll && this.scroll.refresh()
+        },
+        scrollTo() {
+            this.scroll && this.scroll.scrollTo.apply(this.scroll, arguments)  // scroll会接受一些参数传传入'better-scroll'的scrollTo方法中 所以需要用 apply
+        },
+        scrollToElement() {
+            this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments)
         }
     }
 }

@@ -1,28 +1,124 @@
 <template>
-    <div class="listview" ref="listview">
+    <scroll class="listview" ref="listview" :data="data" :listenScroll="listenScroll" @scroll="scroll" :probeType="probeType">
         <ul>
-            <li class="list-group" ref="listGroup">
-                <h2 class="list-group-title"></h2>
+            <li class="list-group" ref="listGroup" v-for="(group, index) in data" :key="index">
+                <h2 class="list-group-title">{{group.title}}</h2>
                 <ul>
-                    <li class="list-group-item">
-                        <img class="avatar" src="" alt="">
-                        <span class="name"></span>
+                    <li class="list-group-item" v-for="item in group.items" :key="item">
+                        <img class="avatar" v-lazy="item.avatar" alt="">
+                        <span class="name">{{item.name}}</span>
                     </li>
                 </ul>
             </li>
         </ul>
-        <div class="list-shortcut"></div>
+        <div class="list-shortcut" @touchstart="onShortcutTouchStart" @touchmove.stop.prevent="onShortcutTouchMove">
+            <ul>
+                <li class="item" :class="{'current':currentIndex === index}" v-for="(item, index) in shortcutList" :key="index" :data-index="index">
+                    {{item}}
+                </li>
+            </ul>
+        </div>
         <div class="list-fixed">
             <div class="fix-title"></div>
         </div>
         <div class="loading-container"></div>
-    </div>
+    </scroll>
 </template>
 <script>
+import Scroll from '@/base/scroll/scroll'
+import { getData } from '@/common/js/dom'
+
+const ANCHOR_HEIGHT = 18
+
 export default {
+    created() {
+        this.touch = {}
+        this.listenScroll = true
+        this.listHeight = []
+        this.probeType = 3
+    },
     data() {
         return {
+            scrollY: -1,
+            currentIndex: 0
         }
+    },
+    props: {
+        data: {
+            type: Array,
+            default: []
+        }
+    },
+    computed: {
+        shortcutList() {
+            return this.data.map((group) => {
+                return group.title.substr(0, 1)
+            })
+        }
+    },
+    methods: {
+        onShortcutTouchStart(e) {
+            let anchorIndex = getData(e.target, 'index')
+            let firstTouch = e.touches[0]
+            this.touch.y1 = firstTouch.pageY
+            this.touch.anchorIndex = anchorIndex
+            this._scrollTo(anchorIndex)
+        },
+        onShortcutTouchMove(e) {
+            let firstTouch = e.touches[0]
+            this.touch.y2 = firstTouch.pageY
+            let delta = (this.touch.y2 - this.touch.y1) / ANCHOR_HEIGHT | 0         // | 0 相当与向下取整
+            let anchorIndex = parseInt(this.touch.anchorIndex) + delta
+            this._scrollTo(anchorIndex)
+        },
+        scroll(pos) {
+            this.scrollY = pos.y
+        },
+        _scrollTo(index) {
+            this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 0)
+        },
+        _calculateHeight() {
+            this.listHeight = []
+            const list = this.$refs.listGroup
+            let height = 0
+            this.listHeight.push(height)
+            for (let i = 0; i < list.length; i++) {
+                let item = list[i]
+                height += item.clientHeight
+                this.listHeight.push(height)
+            }
+        }
+    },
+    watch: {
+        data() {
+            setTimeout(() => {
+                this._calculateHeight()
+            }, 20)
+        },
+        scrollY(newY) {
+            const listHeight = this.listHeight
+            // 当滚动到顶部 newY > 0
+            if (newY > 0) {
+                this.currentIndex = 0
+                return
+            }
+
+            // 在中间部分滚动
+            for (let i = 0; i < listHeight.length - 1; i++) {
+                let height1 = listHeight[i]
+                let height2 = listHeight[i + 1]
+                if (-newY >= height1 && -newY < height2) {
+                    this.currentIndex = i
+                    // console.log(this.currentIndex)
+                    return
+                }
+            }
+            // 当滚动到底部 且-newY大于最后一个元素的上限
+            this.currentIndex = listHeight.length - 2
+        }
+    },
+    components: {
+        Scroll
     }
 }
 </script>
@@ -44,7 +140,7 @@ export default {
                 padding-left: 20px
                 font-size: $font-size-small
                 color: $color-text-l
-                background: $color-lighlight-background
+                background: $color-highlight-background
             .list-group-item
                 display: flex
                 align-items: center
@@ -62,8 +158,8 @@ export default {
             z-index: 30
             right: 0
             top: 50%
-            transform: translateY(50%)
-            width: 20%
+            transform: translateY(-50%)
+            width: 20px
             padding: 20px 0
             border-radius: 10px
             text-align: center
@@ -71,7 +167,7 @@ export default {
             font-family: Helvetica
             .item
                 padding: 3px
-                line-height: 1px
+                line-height: 1
                 color: $color-text-l
                 font-size: $font-size-small
                 &.current
