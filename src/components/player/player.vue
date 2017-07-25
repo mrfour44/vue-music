@@ -25,7 +25,7 @@
                     <div class="progress-wrapper">
                         <span class="time time-l">{{format(currentTime)}}</span>
                         <div class="progress-bar-wrapper">
-                            <progress-bar :percent="percent"></progress-bar>
+                            <progress-bar :percent="percent" @percentChange="onProgressBarChange"></progress-bar>
                         </div>
                         <span class="time time-r">{{format(currentSong.duration)}}</span>
                     </div>
@@ -40,7 +40,7 @@
                             <i @click="togglePlaying" :class="playIcon"></i>
                         </div>
                         <div class="icon i-right" :class="disableCls">
-                            <i @click="next" class="icon-next"></i> 
+                            <i @click="next" class="icon-next"></i>
                         </div>
                         <div class="icon i-right">
                             <i class="icon icon-not-favorite"></i>
@@ -59,7 +59,9 @@
                     <p class="desc" v-html="currentSong.singer"></p>
                 </div>
                 <div class="control">
-                    <i @click.stop="togglePlaying" :class="miniIcon"></i>
+                    <progress-circle :radius="radius" :percent="percent">
+                        <i @click.stop="togglePlaying" class="icon-mini" :class="miniIcon"></i>
+                    </progress-circle>
                 </div>
                 <div class="control">
                     <i class="icon-playlist"></i>
@@ -74,13 +76,15 @@ import { mapGetters, mapMutations } from 'vuex'
 import animations from 'create-keyframe-animation' // 用js创建css3的animation
 import { prefixStyle } from '@/common/js/dom'
 import ProgressBar from '@/base/progress-bar/progress-bar'
+import ProgressCircle from '@/base/progress-circle/progress-circle'
 
 const transform = prefixStyle('transform')
 export default {
     data() {
         return {
             songReady: false,
-            currentTime: 0
+            currentTime: 0,
+            radius: 32
         }
     },
     computed: {
@@ -202,6 +206,13 @@ export default {
             const second = this._pad(interval % 60)
             return `${minute}:${second}`
         },
+        onProgressBarChange(percent) {
+            const currentTime = this.currentSong.duration * percent
+            this.$refs.audio.currentTime = currentTime
+            if (!this.playing) {
+                this.togglePlaying()
+            }
+        },
         _pad(num, n = 2) {
             let len = num.toString().length
             while (len < n) {
@@ -245,7 +256,8 @@ export default {
         }
     },
     components: {
-        ProgressBar
+        ProgressBar,
+        ProgressCircle
     }
 }
 </script>
