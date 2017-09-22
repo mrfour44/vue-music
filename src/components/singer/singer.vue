@@ -11,6 +11,7 @@ import { ERR_OK } from '@/api/config'
 import Singer from '@/common/js/singer'
 import ListView from '@/base/listview/listview'
 import {mapMutations} from 'vuex'
+import {playlistMixin} from '@/common/js/mixin'
 const HOT_NAME = '热门'
 const HOT_SINGER_LEN = 10   // 定义数据的前10条为热门
 export default {
@@ -19,6 +20,7 @@ export default {
             singers: []
         }
     },
+    mixins: [playlistMixin],
     created() {
         this._getSingerList()
     },
@@ -28,6 +30,11 @@ export default {
                 path: `/singer/${singer.id}`
             })
             this.setSinger(singer)
+        },
+        handlePlaylist(playlist) {
+            const bottom = playlist.length > 0 ? '60px' : ''
+            this.$refs.singer.style.bottom = bottom
+            this.$refs.list.refresh()
         },
         _getSingerList() {
             getSingerList().then((res) => {
