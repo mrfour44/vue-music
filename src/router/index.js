@@ -17,7 +17,13 @@ export default new Router({
     {
       path: '/recommend',
       name: 'recommend',
-      component: resolve => require(['@/components/recommend/recommend.vue'], resolve)
+      component: resolve => require(['@/components/recommend/recommend.vue'], resolve),
+      children: [
+        {
+          path: ':id',
+          component: resolve => require(['@/components/disc/disc.vue'], resolve)
+        }
+      ]
     },
     {
       path: '/search',
