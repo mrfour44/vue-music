@@ -12,7 +12,13 @@ export default new Router({
     {
       path: '/rank',
       name: 'rank',
-      component: resolve => require(['@/components/rank/rank.vue'], resolve)
+      component: resolve => require(['@/components/rank/rank.vue'], resolve),
+      children: [
+        {
+          path: ':id',
+          component: resolve => require(['@/components/top-list/top-list.vue'], resolve)
+        }
+      ]
     },
     {
       path: '/recommend',
