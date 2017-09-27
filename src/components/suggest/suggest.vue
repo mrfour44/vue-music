@@ -1,5 +1,5 @@
 <template>
-    <scroll class="suggest" :data="result" :pullup="pullup" @scrollToEnd="searchMore" :befortScroll="befortScroll" @beforeScroll="listScroll" ref="suggest">
+    <scroll class="suggest" :data="result" :pullup="pullup" @scrollToEnd="searchMore" :beforeScroll="beforeScroll" @beforeScroll="listScroll" ref="suggest">
         <ul class="suggest-list">
             <li @click="selectItem(item)" class="suggest-item" v-for="item in result" :key="item">
                 <div class="icon">
@@ -44,7 +44,7 @@ export default {
             page: 1,
             result: [],
             pullup: true,
-            befortScroll: true,
+            beforeScroll: true,
             hasMore: true
         }
     },
@@ -99,6 +99,10 @@ export default {
             } else {
                 this.insertSong(item)
             }
+            this.$emit('select')
+        },
+        refresh() {
+            this.$refs.suggest.refresh()
         },
         listScroll() {
             this.$emit('listScroll')
