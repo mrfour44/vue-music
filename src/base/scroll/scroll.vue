@@ -31,13 +31,17 @@ export default {
         beforeScroll: {
             type: Boolean,
             default: false
+        },
+        refreshDelay: {
+            type: Number,
+            defalut: 20
         }
     },
     watch: {
         data() {
             setTimeout(() => {
                 this.refresh()
-            }, 20)
+            }, this.refreshDelay)
         }
     },
     mounted() {
