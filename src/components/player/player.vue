@@ -57,7 +57,7 @@
                             <i @click="next" class="icon-next"></i>
                         </div>
                         <div class="icon i-right">
-                            <i class="icon icon-not-favorite"></i>
+                            <i class="icon" :class="getFavoriteIcon(currentSong)" @click="toggleFavorite(currentSong)"></i>
                         </div>
                     </div>
                 </div>
@@ -83,7 +83,7 @@
             </div>
         </transition>
         <playlist ref="playlist"></playlist>
-        <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error" @timeupdate="updateTime" @ended="end"></audio>
+        <audio :src="currentSong.url" ref="audio" @play="ready" @error="error" @timeupdate="updateTime" @ended="end"></audio>
     </div>
 </template>
 <script>
@@ -213,6 +213,7 @@ export default {
             }
             if (this.playlist.length === 1) {
                 this.loop()
+                return
             } else {
                 let index = this.currentIndex - 1
                 if (index === -1) {
@@ -232,6 +233,7 @@ export default {
             }
             if (this.playlist.length === 1) {
                 this.loop()
+                return
             } else {
                 let index = this.currentIndex + 1
                 if (index === this.playlist.length) {
@@ -272,6 +274,9 @@ export default {
         },
         getLyric() {
             this.currentSong.getLyric().then((lyric) => {
+                if (this.currentSong.lyric !== lyric) {
+                    return
+                }
                 this.currentLyric = new Lyric(lyric, this.handleLyric)
                 if (this.playing) {
                     this.currentLyric.play()
@@ -387,8 +392,12 @@ export default {
             }
             if (this.currentLyric) {
                 this.currentLyric.stop()
+                this.currentTime = 0
+                this.playingLyric = ''
+                this.currentLineNum = 0
             }
-            setTimeout(() => {
+            clearTimeout(this.timer)
+            this.timer = setTimeout(() => {
                 this.$refs.audio.play()
                 this.getLyric()
             }, 1000)
@@ -418,7 +427,7 @@ export default {
             right: 0
             top: 0
             bottom: 0
-            z-index: 50
+            z-index: 150
             background: $color-background
             .background
                 position: absolute

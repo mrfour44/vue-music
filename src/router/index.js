@@ -52,6 +52,11 @@ export default new Router({
           component: resolve => require(['@/components/singer-detail/singer-detail.vue'], resolve)
         }
       ]
+    },
+    {
+      path: '/user',
+      name: 'user',
+      component: resolve => require(['@/components/user-center/user-center.vue'], resolve)
     }
   ]
 })
